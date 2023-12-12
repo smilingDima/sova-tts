@@ -1,11 +1,14 @@
+import io
+import soundfile
+import time
+
 from base64 import b64encode
 
-from flask import Flask, render_template, request, send_from_directory, url_for
+from flask import Flask, render_template, request, url_for, send_file
 from flask_cors import CORS, cross_origin
 
 from models import models, ALL_MODELS
 from file_handler import FileHandler
-
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -23,6 +26,43 @@ def index():
 @app.route("/synthesize/", methods=["POST"])
 @cross_origin()
 def synthesize():
+    request_json = request.get_json()
+
+    text = request_json["text"]
+    model_type = request_json["voice"]
+
+    options = {
+        "rate": float(request_json.get("rate", 1.0)),
+        "pitch": float(request_json.get("pitch", 1.0)),
+        "volume": float(request_json.get("volume", 0.0))
+    }
+
+    try:
+        model = models[model_type]
+
+        audio = model.synthesize(text, **options)
+        sample_rate = model.sample_rate
+
+        wav_file = io.BytesIO()
+        soundfile.write(wav_file, audio, sample_rate, format='WAV')
+
+        wav_file.seek(0)
+        return send_file(
+            wav_file,
+            mimetype='audio/wav',
+            as_attachment=True,
+            download_name='%s.wav' % time.time()
+        )
+    except Exception as e:
+        return {
+            "response_code": 1,
+            "response": str(e)
+        }
+
+
+@app.route("/synthesize_and_save/", methods=["POST"])
+@cross_origin()
+def synthesize_and_save():
     request_json = request.get_json()
 
     text = request_json["text"]
@@ -52,96 +92,8 @@ def synthesize():
 class InvalidVoice(Exception):
     pass
 
-@app.route("/get_user_dict/", methods=["POST"])
-@cross_origin()
-def get_user_dict():
-    request_json = request.get_json()
 
-    model_type = request_json.get("voice")
-
-    response_code = 1
-    try:
-        if model_type not in _valid_model_types:
-            raise InvalidVoice("Parameter 'voice' must be one of the following: {}".format(_valid_model_types))
-
-        model = models[model_type]
-        result = model.get_user_dict()
-
-        response_code = 0
-    except InvalidVoice as e:
-        result = str(e)
-    except Exception as e:
-        result = str(e)
-
-    return {
-        "response_code": response_code,
-        "response": result
-    }
-
-
-@app.route("/update_user_dict/", methods=["POST"])
-@cross_origin()
-def update_user_dict():
-    request_json = request.get_json()
-
-    model_type = request_json.get("voice")
-    user_dict = request_json.get("user_dict")
-
-    response_code = 1
-    try:
-        if model_type not in _valid_model_types:
-            raise InvalidVoice("Parameter 'voice' must be one of the following: {}".format(_valid_model_types))
-
-        model = models[model_type]
-        model.update_user_dict(user_dict)
-
-        result = "User dictionary has been updated"
-        response_code = 0
-    except InvalidVoice as e:
-        result = str(e)
-    except Exception as e:
-        result = str(e)
-
-    return {
-        "response_code": response_code,
-        "response": result
-    }
-
-
-@app.route("/replace_user_dict/", methods=["POST"])
-@cross_origin()
-def replace_user_dict():
-    request_json = request.get_json()
-
-    model_type = request_json.get("voice")
-    user_dict = request_json.get("user_dict")
-
-    response_code = 1
-    try:
-        if model_type not in _valid_model_types:
-            raise InvalidVoice("Parameter 'voice' must be one of the following: {}".format(_valid_model_types))
-
-        model = models[model_type]
-        model.replace_user_dict(user_dict)
-
-        result = "User dictionary has been replaced"
-        response_code = 0
-    except InvalidVoice as e:
-        result = str(e)
-    except Exception as e:
-        result = str(e)
-
-    return {
-        "response_code": response_code,
-        "response": result
-    }
-
-
-@app.route("/media/<path:filename>", methods=["GET"])
-@cross_origin()
-def media_file(filename):
-    return send_from_directory(".", filename, as_attachment=False)
-
-
+# Removed: /get_user_dict/, /update_user_dict/, /replace_user_dict/ and /media/<path:filename>
+#   because it looks like backdoor
 if __name__ == "__main__":
     app.run()
