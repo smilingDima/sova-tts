@@ -21,7 +21,5 @@ services:
       context: .
       dockerfile: Dockerfile.cpu
     image: sova-tts:master
-    volumes:
-      - .:/sova-tts
     ports:
       - 8899:8899

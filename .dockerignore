@@ -1,1 +1,7 @@
-./data/*
+/docker-compose.yml
+/Dockerfile.cpu
+/Dockerfile.gpu
+/.dockerignore
+/.git
+/.gitignore
+/.gitmodules

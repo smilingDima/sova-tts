@@ -10,37 +10,37 @@ The easiest way to deploy the service is via docker-compose, so you have to inst
 
 *   Clone the repository, download the pretrained models archive and extract the contents into the project folder:
 ```bash
-$ git clone --recursive https://github.com/smilingDima/sova-tts.git
-$ cd sova-tts/
-$ wget http://dataset.sova.ai/SOVA-TTS/Data_v1.1.tar
-$ tar -xvf Data_v1.1.tar && rm Data_v1.1.tar
+git clone --recursive https://github.com/smilingDima/sova-tts.git
+cd sova-tts/
+wget http://dataset.sova.ai/SOVA-TTS/Data_v1.1.tar
+tar -xvf Data_v1.1.tar && rm Data_v1.1.tar
 ```
 
 *   Build docker image
-     *   Build *sova-tts-gpu* image if you're planning on using GPU:
+    <!-- *   Build *sova-tts-gpu* image if you're planning on using GPU:
      ```bash
-     $ sudo docker-compose build sova-tts-gpu
-     ```
+     sudo docker-compose build sova-tts-gpu
+     ``` -->
      *   Build *sova-tts* image if you're planning on using CPU:
      ```bash
-     $ sudo docker-compose build sova-tts
+     sudo docker-compose build sova-tts
      ```
 
 *	Run the desired service container
-     *   GPU:
+     <!-- *   GPU:
      ```bash
-     $ sudo docker-compose up -d sova-tts-gpu
-     ```
+     sudo docker-compose up -d sova-tts-gpu
+     ``` -->
      *   CPU:
      ```bash
-     $ sudo docker-compose up -d sova-tts
+     sudo docker-compose up -d sova-tts
      ```
 
 ## Testing
 
 To test the service you can send a POST request:
 ```bash
-$ curl --request POST 'http://localhost:8899/synthesize/' \
+curl --request POST 'http://localhost:8899/synthesize/' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "text": "Добрый день! Как ваши дел+а?",
