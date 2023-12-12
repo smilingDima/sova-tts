@@ -28,7 +28,7 @@ function send_form() {
             "volume": VOLUME_FACTOR.value
         }
 
-        fetch("/synthesize_and_save/", {
+        fetch("/synthesize/", {
                 method: "post",
                 headers: {
                     'Content-Type': 'application/json',

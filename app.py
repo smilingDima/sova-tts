@@ -23,18 +23,19 @@ def index():
     return render_template("speechSynthesis.html", existing_models=models.keys())
 
 
-@app.route("/synthesize/", methods=["POST"])
+@app.route("/generate/", methods=["GET"])
 @cross_origin()
-def synthesize():
-    request_json = request.get_json()
+def generate():
+    if 'text' not in request.values:
+        raise ValueError('Please fill text variable. Also you can set voice value')
 
-    text = request_json["text"]
-    model_type = request_json["voice"]
+    text = request.values.get('text')
+    model_type = request.values.get('voice', "Natasha")
 
     options = {
-        "rate": float(request_json.get("rate", 1.0)),
-        "pitch": float(request_json.get("pitch", 1.0)),
-        "volume": float(request_json.get("volume", 0.0))
+        "rate": float(request.values.get("rate", 1.0)),
+        "pitch": float(request.values.get("pitch", 1.0)),
+        "volume": float(request.values.get("volume", 0.0))
     }
 
     try:
@@ -60,9 +61,9 @@ def synthesize():
         }
 
 
-@app.route("/synthesize_and_save/", methods=["POST"])
+@app.route("/synthesize/", methods=["POST"])
 @cross_origin()
-def synthesize_and_save():
+def synthesize():
     request_json = request.get_json()
 
     text = request_json["text"]
