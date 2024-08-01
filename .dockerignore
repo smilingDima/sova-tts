@@ -5,3 +5,5 @@
 /.git
 /.gitignore
 /.gitmodules
+/.idea
+/.pyenv
